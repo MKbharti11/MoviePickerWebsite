@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pick a Movie</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        #movie-container {
+            text-align: center;
+        }
+
+        #pick-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+
+        #interest-dropdown,
+        #release-date-dropdown {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div id="movie-container">
+        <h1>Pick a Movie</h1>
+        <label for="interest-dropdown">Genre:</label>
+        <select id="interest-dropdown" multiple>
+            <option value="Action">Action</option>
+            <option value="Comedy">Comedy</option>
+            <option value="Drama">Drama</option>
+            <option value="Sci-Fi">Sci-Fi</option>
+            <!-- Add more genres as needed -->
+        </select>
+
+        <label for="release-date-dropdown">Release Date:</label>
+        <select id="release-date-dropdown">
+            <option value="90s">1990s</option>
+            <option value="2000s">2000s</option>
+            <option value="2010s">2010s</option>
+            <!-- Add more release date ranges as needed -->
+        </select>
+
+        <p id="movie-name"></p>
+        <button id="pick-btn">Pick a Movie</button>
+    </div>
+
+    <script>
+        const moviesByGenre = {
+            Action: ["Die Hard", "The Dark Knight", "Mad Max: Fury Road"],
+            Comedy: ["Superbad", "The Hangover", "Anchorman"],
+            Drama: ["The Shawshank Redemption", "The Godfather", "Forrest Gump"],
+            SciFi: ["Blade Runner", "The Matrix", "Interstellar"],
+            // Add more genres and movies as needed
+        };
+
+        const moviesByReleaseDate = {
+            "90s": ["The Shawshank Redemption", "Pulp Fiction", "The Matrix"],
+            "2000s": ["The Dark Knight", "Superbad", "The Lord of the Rings"],
+            "2010s": ["Inception", "The Martian", "La La Land"],
+            // Add more release date ranges and movies as needed
+        };
+
+        function pickRandomMovieByGenreAndReleaseDate(selectedGenres, selectedReleaseDate) {
+            const selectedMovies = [];
+
+            selectedGenres.forEach(genre => {
+                const genreMovies = moviesByGenre[genre];
+                if (genreMovies && genreMovies.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * genreMovies.length);
+                    selectedMovies.push(genreMovies[randomIndex]);
+                }
+            });
+
+            const releaseDateMovies = moviesByReleaseDate[selectedReleaseDate];
+            if (releaseDateMovies && releaseDateMovies.length > 0) {
+                const randomIndex = Math.floor(Math.random() * releaseDateMovies.length);
+                selectedMovies.push(releaseDateMovies[randomIndex]);
+            }
+
+            return selectedMovies.length > 0 ? selectedMovies.join(', ') : "No movies found for selected genres and release date";
+        }
+
+        document.getElementById('pick-btn').addEventListener('click', function() {
+            const interestDropdown = document.getElementById('interest-dropdown');
+            const releaseDateDropdown = document.getElementById('release-date-dropdown');
+            const selectedGenres = Array.from(interestDropdown.selectedOptions, option => option.value);
+            const selectedReleaseDate = releaseDateDropdown.value;
+            const movieNameElement = document.getElementById('movie-name');
+            const randomMovies = pickRandomMovieByGenreAndReleaseDate(selectedGenres, selectedReleaseDate);
+            movieNameElement.textContent = `You should watch: ${randomMovies}`;
+        });
+    </script>
+</body>
+</html>
