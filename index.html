@@ -1,32 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Firebase Example</title>
-  <!-- Include Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
-</head>
-<body>
-
-<!-- Input fields for entry data -->
-<input type="text" id="nameInput" placeholder="Enter Name">
-<input type="number" id="ageInput" placeholder="Enter Age">
-<input type="text" id="emailInput" placeholder="Enter Email">
-
-<!-- Button to trigger addEntry function -->
-<button onclick="addEntry()">Add Entry</button>
-
-<!-- Input field to enter the key for finding an entry -->
-<input type="text" id="entryKeyInput" placeholder="Enter Entry Key">
-
-<!-- Button to trigger findEntry function -->
-<button onclick="findEntry()">Find Entry</button>
-
-<script>
-  // Initialize Firebase
-  const firebaseConfig = {
+    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Movie Database</title>
+    <!-- Add your Firebase script here -->
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-database.js"></script>
+    <!-- Add your Firebase configuration here -->
+    <script>
+        var firebaseConfig = {
     apiKey: "AIzaSyB5fGBmA8CauTA3WaRE1nRkCTWeBfHgwGQ",
     authDomain: "moviepickerwebsite.firebaseapp.com",
     projectId: "moviepickerwebsite",
@@ -34,60 +18,157 @@
     messagingSenderId: "1021848648835",
     appId: "1:1021848648835:web:9e514eb2773e2377ef6fb6",
     measurementId: "G-MGV7VBXP4H"
-  };
-  firebase.initializeApp(firebaseConfig);
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
 
-  // Reference to the database
-  const database = firebase.database();
+        // Get a reference to the database service
+        var database = firebase.database();
+    </script>
+    <!-- Add your styling if needed -->
+    <style>
+        /* Your styles here */
+    </style>
+</head>
+<body>
 
-  // Add an entry
-  function addEntry() {
-    // Get data from input fields
-    const name = document.getElementById('nameInput').value;
-    const age = parseInt(document.getElementById('ageInput').value, 10);
-    const email = document.getElementById('emailInput').value;
+    <h1>Firebase Movie Database</h1>
 
-    // Check if any of the fields are empty
-    if (name.trim() === "" || isNaN(age) || email.trim() === "") {
-      console.log("Please enter valid data for all fields");
-      return;
-    }
+    <!-- Form to add entries -->
+    <form id="addMovieForm">
+        <label for="movieName">Movie Name:</label>
+        <input type="text" id="movieName" required><br>
 
-    // Create entry data
-    const data = {
-      name: name,
-      age: age,
-      email: email
-    };
+        <label for="genre">Genre:</label>
+        <select id="genre" required>
+            <option value="Action">Action</option>
+            <option value="Drama">Drama</option>
+            <!-- Add more genres as needed -->
+        </select><br>
 
-    // Push data to the database
-    const newEntryRef = database.ref('entries').push(data);
+        <label for="releaseDate">Release Date:</label>
+        <input type="date" id="releaseDate" required><br>
 
-    console.log("Entry added with key:", newEntryRef.key);
-  }
+        <label for="imdbRating">IMDb Rating:</label>
+        <input type="number" id="imdbRating" step="0.1" required><br>
 
-  // Find an entry
-  function findEntry() {
-    // Get the entry key from the input field
-    const entryKey = document.getElementById('entryKeyInput').value;
+        <label for="author">Author:</label>
+        <input type="text" id="author" required><br>
 
-    // Check if the key is not empty
-    if (entryKey.trim() === "") {
-      console.log("Please enter a valid entry key");
-      return;
-    }
+        <button type="button" onclick="addMovie()">Add Movie</button>
+    </form>
+	<br><br><br>
+    <!-- Dropdown to filter movies by genre -->
+    <label for="filterGenre">Filter by Genre:</label>
+    <select id="filterGenre">
+        <option value="">All Genres</option>
+        <option value="Action">Action</option>
+        <option value="Drama">Drama</option>
+        <!-- Add more genres as needed -->
+    </select>
+<br>
+    <!-- Button to find movies based on selected genre -->
+    <button onclick="filterMovies()">Find Movies</button>
+<br><br><br>
+    <!-- Table to display movie entries -->
+    <table id="movieTable">
+        <thead>
+            <tr>
+                <th>Movie Name</th>
+                <th>Genre</th>
+                <th>Release Date</th>
+                <th>IMDb Rating</th>
+                <th>Author</th>
+                <!--<th>Action</th>-->
+            </tr>
+        </thead>
+        <tbody id="movieTableBody">
+            <!-- Movie entries will be displayed here -->
+        </tbody>
+    </table>
 
-    // Get the entry from the database
-    database.ref('entries/' + entryKey).once('value').then(snapshot => {
-      const entry = snapshot.val();
-      if (entry) {
-        console.log("Found Entry:", entry);
-      } else {
-        console.log("Entry not found");
-      }
-    });
-  }
-</script>
+    <!-- Script for Firebase and functionality -->
+    <script>
+        // Function to add a movie to the database
+        function addMovie() {
+            var movieName = document.getElementById('movieName').value;
+            var genre = document.getElementById('genre').value;
+            var releaseDate = document.getElementById('releaseDate').value;
+            var imdbRating = document.getElementById('imdbRating').value;
+            var author = document.getElementById('author').value;
 
+            // Push data to Firebase
+            database.ref('Movie').push({
+                MovieName: movieName,
+                Genre: genre,
+                ReleaseDate: releaseDate,
+                IMDbRating: imdbRating,
+                Author: author
+            });
+
+            // Clear the form fields
+            document.getElementById('addMovieForm').reset();
+        }
+
+        // Function to filter movies by genre
+        function filterMovies() {
+            var selectedGenre = document.getElementById('filterGenre').value;
+            var movieTableBody = document.getElementById('movieTableBody');
+            movieTableBody.innerHTML = '';
+
+            // Retrieve data from Firebase based on the selected genre
+            if (selectedGenre === '') {
+                database.ref('Movie').once('value', function(snapshot) {
+                    snapshot.forEach(function(childSnapshot) {
+                        var movieData = childSnapshot.val();
+                        appendMovieRow(movieData);
+                    });
+                });
+            } else {
+                database.ref('Movie').orderByChild('Genre').equalTo(selectedGenre).once('value', function(snapshot) {
+                    snapshot.forEach(function(childSnapshot) {
+                        var movieData = childSnapshot.val();
+                        appendMovieRow(movieData);
+                    });
+                });
+            }
+        }
+
+        // Function to append a row to the movie table
+        function appendMovieRow(movieData) {
+            var movieTableBody = document.getElementById('movieTableBody');
+            var row = movieTableBody.insertRow();
+
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            var cell3 = row.insertCell(2);
+            var cell4 = row.insertCell(3);
+            var cell5 = row.insertCell(4);
+            <!--var cell6 = row.insertCell(5);-->
+
+            cell1.innerHTML = movieData.MovieName;
+            cell2.innerHTML = movieData.Genre;
+            cell3.innerHTML = movieData.ReleaseDate;
+            cell4.innerHTML = movieData.IMDbRating;
+            cell5.innerHTML = movieData.Author;
+            <!--cell6.innerHTML = '<button onclick="deleteMovie(\'' + movieData.MovieName + '\')">Delete</button>';-->
+        }
+
+        // Function to delete a movie from the database
+        function deleteMovie(movieName) {
+            if (confirm('Are you sure you want to delete this movie?')) {
+                database.ref('Movie').orderByChild('MovieName').equalTo(movieName).once('value', function(snapshot) {
+                    snapshot.forEach(function(childSnapshot) {
+                        childSnapshot.ref.remove();
+                    });
+                    // Refresh the table after deletion
+                    <!--filterMovies();-->
+                });
+            }
+        }
+
+        // Initial load of all movies
+        <!--filterMovies();-->
+    </script>
 </body>
 </html>
